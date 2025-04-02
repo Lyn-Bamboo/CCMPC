@@ -1,3 +1,0 @@
-# CCMPC
-# CCMPC
-# CCMPC
