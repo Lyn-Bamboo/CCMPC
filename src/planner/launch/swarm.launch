@@ -1,0 +1,69 @@
+
+<launch>
+
+    <arg name="map_size_x" default="10.0"/>
+    <arg name="map_size_y" default="10.0"/>
+    <arg name="map_size_z" default="5.0"/>
+
+    <arg name="grid_size_x" default="20.0"/>
+    <arg name="grid_size_y" default="20.0"/>
+    <arg name="grid_size_z" default="5.0"/>
+
+    <arg name="start_x" default="0.0"/>
+    <arg name="start_y" default="0.0"/>
+    <arg name="start_z" default="1.0"/>
+
+    <arg name="cloud_margin" default="0.0"/>
+    <arg name="resolution" default="0.2"/>
+
+
+<!--生成随机复杂环境地图，包括障碍物和其他随机元素。参数包括地图大小、障碍物数量、分辨率等-->
+
+    <node pkg ="grid_map" name ="random_complex" type ="random_complex" output = "screen">     
+        
+        <param name="init_state_x"   value="$(arg start_x)"/>
+        <param name="init_state_y"   value="$(arg start_y)"/>
+
+        <param name="map/x_size"     value="$(arg map_size_x)" />
+        <param name="map/y_size"     value="$(arg map_size_y)" />
+        <param name="map/z_size"     value="$(arg map_size_z)" />
+
+
+        <param name="map/circle_num" value="0"/>        
+        <param name="map/obs_num"    value="15"/>        
+        <param name="map/resolution" value="0.1"/>        
+
+        <param name="ObstacleShape/lower_rad" value="0.1"/>
+        <param name="ObstacleShape/upper_rad" value="0.7"/>
+        <param name="ObstacleShape/lower_hei" value="2.0"/>
+        <param name="ObstacleShape/upper_hei" value="3.0"/>
+
+        <param name="CircleShape/lower_circle_rad"   value="0.6"/>        
+        <param name="CircleShape/upper_circle_rad"   value="2.0"/>        
+        
+        <param name="sensing/rate"   value="0.5"/>        
+    </node>
+ 
+
+<!--启动无人机规划节点-->
+
+    <node pkg="planner" type="swarm" name="swarm" output="screen" required = "true">
+
+        <rosparam command="load" file="$(find planner)/launch/agent_config.yaml" />
+
+        <param name="map/cloud_margin" value="$(arg cloud_margin)" />
+        <param name="map/resolution"   value="$(arg resolution)" />
+        <param name="map/x_size"       value="$(arg grid_size_x)"/>
+        <param name="map/y_size"       value="$(arg grid_size_y)"/>
+        <param name="map/z_size"       value="$(arg grid_size_z)"/> 
+
+        <param name="agent_num" value="16" />
+
+    </node>
+
+
+<!--rviz加载配置文件，显示地图和规划路径-->
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find planner)/launch/rviz_config/demo.rviz"/> 
+
+</launch>
